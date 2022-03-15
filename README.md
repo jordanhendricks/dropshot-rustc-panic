@@ -1,6 +1,16 @@
 # Producing a rustc panic with a minimal dropshot example
 
-I managed to make rustc panic by doing something that should've been a compiler error. Specifically, I was using dropshot and called a method on a field in a `ServerContext` struct that required a mutable reference on the field, which should've produced a compiler error. This panic only happens on the nightly-2021-11-24 version (which is what propolis uses).
+I managed to make a specific version of rustc panic by doing something with dropshot that should've been a compiler error.
+
+Specifically, I was doing something like this in an endpoint (see main.rs for a full example):
+```rust
+    let server_context = rqctx.context(); // returns a &Context
+    server_context.field.test_mut(); // test_mut() requires a &mut
+```
+
+This should've been a compiler error (and was on other versions of rust), but instead produced a panic.
+
+I've only found that this panic happens on the nightly-2021-11-24 version, which is what propolis uses.
 
 ## Reproducing
 
