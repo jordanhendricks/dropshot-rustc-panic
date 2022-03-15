@@ -1,6 +1,5 @@
-use dropshot::{ApiDescription, HttpError, HttpResponseOk, RequestContext, endpoint};
+use dropshot::{endpoint, HttpError, HttpResponseOk, RequestContext};
 use std::sync::Arc;
-
 
 struct ServerState {}
 
@@ -9,11 +8,12 @@ impl ServerState {
 }
 
 struct ServerContext {
-    field1: ServerState,
-    field2: ServerState,
+    field: ServerState,
 }
 
-impl ServerContext {}
+impl ServerContext {
+    fn test_mut(&mut self) {}
+}
 
 #[endpoint {
     method = GET,
@@ -21,14 +21,14 @@ impl ServerContext {}
 }]
 async fn test_endpoint(
     rqctx: Arc<RequestContext<ServerContext>>,
-) -> Result<HttpResponseOk<()>, HttpError>
-{
+) -> Result<HttpResponseOk<()>, HttpError> {
     let server_context = rqctx.context();
-    server_context.field1.test_mut();
+
+    // Either of these will cause a panic on nightly-2021-11-24
+    //server_context.test_mut();
+    server_context.field.test_mut();
+
     Ok(HttpResponseOk(()))
 }
 
-fn main() {
-    let mut api = ApiDescription::new();
-    api.register(test_endpoint);
-}
+fn main() {}
